@@ -4,6 +4,7 @@ import 'package:newhack/widgets/custom_button.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class CenterPage extends StatefulWidget {
   @override
@@ -25,16 +26,15 @@ class _CenterPageState extends State<CenterPage> {
     return res;
   }
 
-  String respStr = '';
+  String respStr = '1';
   String returnData = '';
   String slogan = '';
 
 
   Widget displaySelectedFile(File file) {
     return new ClipRRect(
-      borderRadius: BorderRadius.only(
-        topLeft: Radius.circular(8.0),
-        topRight: Radius.circular(8.0),
+      borderRadius: BorderRadius.all(
+        Radius.circular(8)
       ),
       child: file == null
           ? new Image(image: AssetImage(
@@ -63,7 +63,23 @@ class _CenterPageState extends State<CenterPage> {
             padding: EdgeInsets.all(16),
             child: Column(
               children: <Widget>[
-                SizedBox( height: 50,),
+                SafeArea(
+                  child: Container(
+                    padding: EdgeInsets.all(3),
+                child:Container(
+                  width: 300,
+                  child: ClipRRect(
+                      borderRadius: BorderRadius.all(
+                          Radius.circular(25)
+                      ),
+                      child:Image(image: AssetImage(
+                          'assets/images/newhacklogo.png'
+                      ),)
+                  ),
+                ),
+            )
+                ),
+                SizedBox( height: 10,),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
@@ -75,42 +91,91 @@ class _CenterPageState extends State<CenterPage> {
                       ),
                       child: Column(
                         children: <Widget>[
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: <Widget>[
-                              Container(width: MediaQuery.of(context).size.width/ 3.5,),
-                              SendButton(
-                                icon: Icon(Icons.camera_alt, size: 50,),
-                                callback: () async{
-                                  var file = await ImagePicker.pickImage(source: ImageSource.camera);
-                                  //   var res = await uploadImage(file.path, "http://4aa134b5af7c.ngrok.io/foodify");
-                                  //       respStr = await res.stream.bytesToString();
-                                  setState(() {
-                                    _file = file;
-                                    returnData = respStr;
-                                  });
-                                },
-                              ),
-                              SizedBox(width: 10,),
-                              SendButton(
-                                  icon: Icon(Icons.image, size: 50,),
-                                  callback: () async {
-                                    var file = await ImagePicker.pickImage(source: ImageSource.gallery);
-//                        var res = await uploadImage(file.path, "http://292bde44c00c.ngrok.io/file_analysis");
-//                        respStr = await res.stream.bytesToString();
-                                    setState(() {
-                                      _file = file;
-                                      returnData = respStr;
-                                    });
-                                  }
-                              ),
-                            ],
+                          SizedBox(height: 10,),
+                          Text('Slogans', style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold
+                          ),),
+                          //displaySelectedFile(_file),
+                          SizedBox(height: 10,),
+                          Divider(thickness: 5,),
+                          SizedBox(height: 10,),
+                          Container(
+                            padding: EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.amber, width: 5)
+                            ),
+                            child: Row(
+                              children: <Widget>[
+                                Text('1. Bat Lives Matter!'),
+                                SizedBox(
+                                  width: 110,
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.arrow_upward),
+                                  color: Colors.black,
+                                  onPressed: (){
+                                  },
+                                ),
+                                Text('64'),
+                              ],
+                            ),
                           ),
+                          SizedBox(
+                            height: 15,
+                          ),
+                          Container(
+                            padding: EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                                border: Border.all(color: Colors.black)
+                            ),
+                            child: Row(
+                              children: <Widget>[
+                                Text('2. Black Lives Matter!'),
+                                SizedBox(
+                                  width: 95,
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.arrow_upward),
+                                  color: Colors.black,
+                                  onPressed: (){
+                                  },
+                                ),
+                                Text('32'),
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            height: 15,
+                          ),
+                          Container(
+                            padding: EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                                border: Border.all(color: Colors.black)
+                            ),
+                            child: Row(
+                              children: <Widget>[
+                                Text('3. No Jusitce no PEace!'),
+                                SizedBox(
+                                  width: 95,
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.arrow_upward),
+                                  color: Colors.black,
+                                  onPressed: (){
+                                  },
+                                ),
+                                Text('1'),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 10,),
                           Divider(thickness: 5,),
                           SizedBox(height: 10,),
-                          displaySelectedFile(_file),
-                          SizedBox(height: 10,),
-                          Divider(thickness: 5,),
+                          Text('Submit your own Slogan!', style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold
+                          ),),
                           SizedBox(height: 10,),
                           TextField(
                               onChanged: (value) => slogan = value,
@@ -132,13 +197,15 @@ class _CenterPageState extends State<CenterPage> {
                                 color: Colors.white30,
                                 borderRadius: BorderRadius.all(Radius.circular(25))
                             ),
-                            child: _file == null ? Text('Select an Image.', style: TextStyle(
-                                fontSize: 22
-                            ),) : RaisedButton(
+                            child:RaisedButton(
                               child: Text('Submit'),
                               elevation: 10,
-                              onPressed: (){
-
+                              onPressed: () async{
+                                var response = await http.post('http://eee4eb875000.ngrok.io/showslogan',
+                                    headers: {"Content-Type": "application/json"},
+                                    body: json.encode({"slogan" : slogan})
+                                );
+                                print(response.body);
                               },
                             ),
                           ),
